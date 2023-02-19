@@ -101,7 +101,7 @@ void RoundRobin(queue<pii> &process_RR)
         p_num = temp.ff;
         b_time = temp.ss;
 
-        if (b_time <= quantam)
+        if (b_time <= quantam || process_RR.empty())
             total_time += b_time;
         else
         {
