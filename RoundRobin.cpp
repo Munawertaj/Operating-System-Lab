@@ -57,7 +57,7 @@ void RoundRobin()
         p_num = temp.ff;
         b_time = temp.ss;
 
-        if (b_time <= quantam)
+        if (b_time <= quantam || process.empty())
             total += b_time;
         else
         {
