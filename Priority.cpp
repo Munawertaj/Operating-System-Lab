@@ -99,7 +99,7 @@ void gant_chart()
     string sequence, dash;
     // Generating Process
     sequence.pb('|');
-    for (int i = 1; i <= num; i++)
+    for (int i = 1; i <= times.size(); i++)
     {
         for (int j = 0; j < times[i] - times[i - 1]; j++)
             sequence.pb(' ');
