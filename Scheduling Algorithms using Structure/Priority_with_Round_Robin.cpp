@@ -15,18 +15,31 @@ CSE, Rajshahi University
 #define ss second
 #define nl "\n"
 using namespace std;
+struct process
+{
+    int id;
+    int burst, turn, wait, priority;
+};
 
-int num, quantam;
-double total_time = 0, turn_around = 0, waiting = 0;
-vii bt(100), tat(100), pt(100);
+bool compare_by_priority(process x, process y)
+{
+    return x.priority < y.priority;
+}
+
+bool compare_by_id(process x, process y)
+{
+    return x.id < y.id;
+}
+
+int num, quantam, total_time = 0;
 vii times, process_no;
-vector<pair<int, pair<int, int>>> process;
+queue<pii> processes;
 
-void print_table();
+void Priority_Scheduling(vector<process> &proc);
+void RoundRobin(vector<process> &proc);
+void print_table(vector<process> &proc);
+void Average(vector<process> &proc);
 void gant_chart();
-void FCFS();
-void Average();
-void RoundRobin(queue<pii> &process_RR);
 
 int main()
 {
@@ -35,115 +48,120 @@ int main()
 
     // taking inputs
     cin >> num >> quantam;
+    vector<process> proc(num);
     int prior, brst;
 
-    for (int i = 1; i <= num; i++)
+    for (int i = 0; i < num; i++)
     {
-        cin >> prior >> brst;
-        process.pb({prior, {i, brst}});
-        bt[i] = brst;
-        pt[i] = prior;
+        cin >> brst >> prior;
+        proc[i].id = i;
+        proc[i].burst = brst;
+        proc[i].priority = prior;
     }
-    SORT(process);
 
     cout << "PRIORITY WITH ROUND ROBIN SCHEDULING ALGORITHM IMPLEMENTATION:" << nl << nl;
-    FCFS();
-    print_table();
-    Average();
+    Priority_Scheduling(proc);
+    print_table(proc);
+    Average(proc);
     gant_chart();
 
     return 0;
 }
 
-void FCFS()
+void Priority_Scheduling(vector<process> &proc)
 {
-    times.pb(0);
-    int pri, prc, brs;
-    for (int i = 0; i < process.size(); i++)
+    sort(proc.begin(), proc.end(), compare_by_priority);
+    int p_id, b_time, p_prior;
+    times.push_back(0);
+    for (int i = 0; i < proc.size(); i++)
     {
-        pri = process[i].ff;
-        prc = process[i].ss.ff;
-        brs = process[i].ss.ss;
-        // Round Robin Check
-        if (i + 1 < process.size() && process[i + 1].ff == pri)
+        p_id = proc[i].id;
+        b_time = proc[i].burst;
+        p_prior = proc[i].priority;
+
+        // Checking for RR
+        if (i + 1 < proc.size() && proc[i + 1].priority == p_prior)
         {
-            queue<pii> process_RR;
-            int pr, br;
-            while (i < process.size())
+            while (i < proc.size())
             {
-                pr = process[i].ss.ff;
-                br = process[i].ss.ss;
-                process_RR.push({pr, br});
-                if (i + 1 < process.size() && process[i + 1].ff != pri)
+                processes.push({proc[i].id, proc[i].burst});
+                if (i + 1 < proc.size() && p_prior != proc[i + 1].priority)
                     break;
+
                 i++;
             }
-            RoundRobin(process_RR);
+            RoundRobin(proc);
         }
         else
         {
-            total_time += brs;
-            tat[prc] = total_time;
+            total_time += b_time;
             times.pb(total_time);
-            process_no.pb(prc);
+            process_no.pb(p_id);
         }
     }
+    // Turnaround finaL VALUES
+    sort(proc.begin(), proc.end(), compare_by_id);
+    for (int i = 0; i < process_no.size(); i++)
+        proc[process_no[i]].turn = times[i + 1];
 }
 
-void RoundRobin(queue<pii> &process_RR)
+void RoundRobin(vector<process> &proc)
 {
-    pii temp;
-    int p_num, b_time;
-    while (!process_RR.empty())
-    {
-        temp = process_RR.front();
-        process_RR.pop();
-        p_num = temp.ff;
-        b_time = temp.ss;
+    pair<int, int> temp;
+    int p_id, b_time;
 
-        if (b_time <= quantam || process_RR.empty())
+    while (processes.size())
+    {
+        temp = processes.front();
+        processes.pop();
+        p_id = temp.first;
+        b_time = temp.second;
+
+        if (b_time <= quantam || processes.empty())
             total_time += b_time;
         else
         {
             total_time += quantam;
             b_time -= quantam;
-            process_RR.push({p_num, b_time});
+            processes.push({p_id, b_time});
         }
-        tat[p_num] = total_time;
-        times.pb(total_time);
-        process_no.pb(p_num);
+        times.push_back(total_time);
+        process_no.push_back(p_id);
     }
 }
 
-void print_table()
+void print_table(vector<process> &proc)
 {
     cout << "---------------Table--------------" << nl;
     cout << "Process\tPriority\tBurst\tTurnAround\tWaiting" << nl;
-    for (int i = 1; i <= num; i++)
-        cout << "P" << i << "\t\t" << pt[i] << "\t\t\t" << bt[i] << "\t\t" << tat[i] << "\t\t\t" << tat[i] - bt[i] << nl;
+
+    for (int i = 0; i < proc.size(); i++)
+        proc[i].wait = proc[i].turn - proc[i].burst;
+
+    for (auto x : proc)
+        cout << "P" << x.id << "\t\t\t" << x.priority << "\t\t" << x.burst << "\t\t" << x.turn << "\t\t\t" << x.wait << nl;
     cout << nl;
 }
 
-void Average()
+void Average(vector<process> &proc)
 {
     cout << "---------------Average values--------------" << nl;
-    for (int i = 1; i <= num; i++)
+    double total_turn_around = 0, total_waiting = 0;
+    for (auto x : proc)
     {
-        turn_around += tat[i];
-        waiting += tat[i] - bt[i];
+        total_turn_around += x.turn;
+        total_waiting += x.wait;
     }
-    cout << "Average Turn around time = " << turn_around / num << nl;
-    cout << "Average Waiting time = " << waiting / num << nl;
+    cout << nl << "Average Turn around time = " << total_turn_around / num << nl;
+    cout << "Average Waiting time = " << total_waiting / num << nl;
     cout << nl;
 }
 
 void gant_chart()
 {
     cout << "---------------GANT CHART--------------" << nl;
-
     string sequence, dash;
-
-    // Generating Process string
+    // Generating Process
     sequence.pb('|');
     for (int i = 1; i < times.size(); i++)
     {
@@ -153,12 +171,13 @@ void gant_chart()
         sequence.pb(process_no[i - 1] + '0');
         for (int j = 0; j < times[i] - times[i - 1]; j++)
             sequence.pb(' ');
+
         sequence.pb('|');
     }
-
-    // Generating line for upper and lower
+    // Generating upper and lower line
     for (int i = 0; i < sequence.size(); i++)
         dash.pb('-');
+
     // Printing the GANT Chart
     cout << dash << nl << sequence << nl << dash << nl;
 
@@ -178,3 +197,37 @@ void gant_chart()
     }
     cout << nl;
 }
+
+/*
+Sample Input:
+5 3
+5 3
+1 1
+10 2
+8 2
+4 2
+
+Sample Output:
+PRIORITY WITH ROUND ROBIN SCHEDULING ALGORITHM IMPLEMENTATION:
+
+---------------Table--------------
+Process	Priority	Burst	TurnAround	Waiting
+P0			3		5		28			23
+P1			1		1		1			0
+P2			2		10		23			13
+P3			2		8		22			14
+P4			2		4		17			13
+
+---------------Average values--------------
+
+Average Turn around time = 18.2
+Average Waiting time = 12.6
+
+---------------GANT CHART--------------
+------------------------------------------------------------------------------------------
+| P1 |   P2   |   P3   |   P4   |   P2   |   P3   | P4 |   P2   |  P3  | P2 |     P0     |
+------------------------------------------------------------------------------------------
+0    1        4        7        10       13       16   17       20     22   23           28
+
+
+*/

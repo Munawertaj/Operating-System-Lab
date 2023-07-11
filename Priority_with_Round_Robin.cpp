@@ -39,7 +39,7 @@ int main()
 
     for (int i = 1; i <= num; i++)
     {
-        cin >> prior >> brst;
+        cin >> brst >> prior;
         process.pb({prior, {i, brst}});
         bt[i] = brst;
         pt[i] = prior;
@@ -178,3 +178,35 @@ void gant_chart()
     }
     cout << nl;
 }
+
+/*
+Sample Input:
+5 3
+5 3
+1 1
+10 2
+8 2
+4 2
+
+Sample Output:
+PRIORITY WITH ROUND ROBIN SCHEDULING ALGORITHM IMPLEMENTATION:
+
+---------------Table--------------
+Process	Priority	Burst	TurnAround	Waiting
+P1		3			5		28			23
+P2		1			1		1			0
+P3		2			10		23			13
+P4		2			8		22			14
+P5		2			4		17			13
+
+---------------Average values--------------
+Average Turn around time = 18.2
+Average Waiting time = 12.6
+
+---------------GANT CHART--------------
+------------------------------------------------------------------------------------------
+| P2 |   P3   |   P4   |   P5   |   P3   |   P4   | P5 |   P3   |  P4  | P3 |     P1     |
+------------------------------------------------------------------------------------------
+0    1        4        7        10       13       16   17       20     22   23           28
+
+*/
