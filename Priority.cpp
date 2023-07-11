@@ -38,7 +38,7 @@ int main()
 
     for (int i = 1; i <= num; i++)
     {
-        cin >> prior >> brst;
+        cin >> brst >> prior;
         process.pb({prior, {i, brst}});
         bt[i] = brst;
         pt[i] = prior;
@@ -133,3 +133,35 @@ void gant_chart()
     }
     cout << nl;
 }
+
+/*
+Sample Input:
+5
+10 3
+1 1
+2 4
+1 5
+5 2
+
+Sample Output:
+PRIORITY SCHEDULING ALGORITHM IMPLEMENTATION:
+
+---------------Table--------------
+Process	Priority	Burst	TurnAround	Waiting
+P1		3			10		16			6
+P2		1			1		1			0
+P3		4			2		18			16
+P4		5			1		19			18
+P5		2			5		6			1
+
+---------------Average values--------------
+Average Turn around time = 12
+Average Waiting time = 8.2
+
+---------------GANT CHART--------------
+------------------------------------------------------
+| P2 |     P5     |          P1          |  P3  | P4 |
+------------------------------------------------------
+0    1            6                      16     18   19
+
+*/

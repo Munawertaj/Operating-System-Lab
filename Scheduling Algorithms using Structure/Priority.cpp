@@ -15,17 +15,29 @@ CSE, Rajshahi University
 #define ss second
 #define nl "\n"
 using namespace std;
+struct process
+{
+    int id;
+    int burst, turn, wait, priority;
+};
+
+bool compare_by_priority(process x, process y)
+{
+    return x.priority < y.priority;
+}
+
+bool compare_by_id(process x, process y)
+{
+    return x.id < y.id;
+}
 
 int num;
-double total_time = 0, turn_around = 0, waiting = 0;
-vii bt(100), tat(100), pt(100);
 vii times, process_no;
-vector<pair<int, pair<int, int>>> process;
 
-void print_table();
+void Priority_Scheduling(vector<process> &proc);
+void print_table(vector<process> &proc);
+void Average(vector<process> &proc);
 void gant_chart();
-void FCFS();
-void Average();
 
 int main()
 {
@@ -34,62 +46,69 @@ int main()
 
     // taking inputs
     cin >> num;
+    vector<process> proc(num);
     int prior, brst;
 
-    for (int i = 1; i <= num; i++)
+    for (int i = 0; i < num; i++)
     {
-        cin >> prior >> brst;
-        process.pb({prior, {i, brst}});
-        bt[i] = brst;
-        pt[i] = prior;
+        cin >> brst >> prior;
+        proc[i].id = i;
+        proc[i].burst = brst;
+        proc[i].priority = prior;
     }
-    SORT(process);
 
     cout << "PRIORITY SCHEDULING ALGORITHM IMPLEMENTATION:" << nl << nl;
-    FCFS();
-    print_table();
-    Average();
+    Priority_Scheduling(proc);
+    print_table(proc);
+    Average(proc);
     gant_chart();
 
     return 0;
 }
 
-void FCFS()
+void Priority_Scheduling(vector<process> &proc)
 {
+    sort(proc.begin(), proc.end(), compare_by_priority);
     times.pb(0);
-    int pri, prc, brs;
-    for (int i = 0; i < process.size(); i++)
+    int prc, brs, total_time = 0;
+
+    for (int i = 0; i < proc.size(); i++)
     {
-        pri = process[i].ff;
-        prc = process[i].ss.ff;
-        brs = process[i].ss.ss;
+        prc = proc[i].id;
+        brs = proc[i].burst;
 
         total_time += brs;
-        tat[prc] = total_time;
+        proc[i].turn = total_time;
         times.pb(total_time);
         process_no.pb(prc);
     }
 }
 
-void print_table()
+void print_table(vector<process> &proc)
 {
     cout << "---------------Table--------------" << nl;
     cout << "Process\tPriority\tBurst\tTurnAround\tWaiting" << nl;
-    for (int i = 1; i <= num; i++)
-        cout << "P" << i << "\t\t" << pt[i] << "\t\t\t" << bt[i] << "\t\t" << tat[i] << "\t\t\t" << tat[i] - bt[i] << nl;
+
+    sort(proc.begin(), proc.end(), compare_by_id);
+    for (int i = 0; i < proc.size(); i++)
+        proc[i].wait = proc[i].turn - proc[i].burst;
+
+    for (auto x : proc)
+        cout << "P" << x.id << "\t\t\t" << x.priority << "\t\t" << x.burst << "\t\t" << x.turn << "\t\t\t" << x.wait << nl;
     cout << nl;
 }
 
-void Average()
+void Average(vector<process> &proc)
 {
     cout << "---------------Average values--------------" << nl;
-    for (int i = 1; i <= num; i++)
+    double total_turn_around = 0, total_waiting = 0;
+    for (auto x : proc)
     {
-        turn_around += tat[i];
-        waiting += tat[i] - bt[i];
+        total_turn_around += x.turn;
+        total_waiting += x.wait;
     }
-    cout << "Average Turn around time = " << turn_around / num << nl;
-    cout << "Average Waiting time = " << waiting / num << nl;
+    cout << nl << "Average Turn around time = " << total_turn_around / num << nl;
+    cout << "Average Waiting time = " << total_waiting / num << nl;
     cout << nl;
 }
 
@@ -135,11 +154,34 @@ void gant_chart()
 }
 
 /*
-Sample input:
+Sample Input:
 5
 10 3
 1 1
 2 4
 1 5
 5 2
+
+Sample Output:
+PRIORITY SCHEDULING ALGORITHM IMPLEMENTATION:
+
+---------------Table--------------
+Process	Priority	Burst	TurnAround	Waiting
+P0			3		10		16			6
+P1			1		1		1			0
+P2			4		2		18			16
+P3			5		1		19			18
+P4			2		5		6			1
+
+---------------Average values--------------
+
+Average Turn around time = 12
+Average Waiting time = 8.2
+
+---------------GANT CHART--------------
+------------------------------------------------------
+| P1 |     P4     |          P0          |  P2  | P3 |
+------------------------------------------------------
+0    1            6                      16     18   19
+
 */
