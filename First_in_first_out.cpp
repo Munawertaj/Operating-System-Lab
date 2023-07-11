@@ -1,7 +1,9 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-bool check(int page, vector<int> frames)
+vector<int> frames;
+
+bool check(int page)
 {
     for (auto x : frames)
     {
@@ -11,7 +13,7 @@ bool check(int page, vector<int> frames)
     return false;
 }
 
-void print(vector<int> frames)
+void print()
 {
     for (auto x : frames)
     {
@@ -27,22 +29,18 @@ int main()
     int total; // Total number of frames
     cin >> total;
 
-    vector<int> page_frames(total, -1), reference_string;
-    int page;
+    for (int i = 0; i < total; i++)
+        frames.push_back(-1);
+
+    int page, index = 0, page_fault = 0;
     while (cin >> page)
-        reference_string.push_back(page);
-
-    int index = 0, page_fault = 0;
-    for (int i = 0; i < reference_string.size(); i++)
     {
-        page = reference_string[i];
         cout << page << "--> ";
-
-        if (!check(page, page_frames)) // FIFO will be applied
+        if (!check(page)) // FIFO will be applied
         {
-            page_frames[index] = page;
+            frames[index] = page;
             index = (index + 1) % total;
-            print(page_frames);
+            print();
             page_fault++;
         }
         cout << endl;
