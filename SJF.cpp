@@ -38,7 +38,6 @@ int main()
         process[i] = {brst, i};
         bt[i] = brst;
     }
-    sort(process.begin() + 1, process.begin() + num + 1);
 
     cout << "SHORTEST JOB FIRST SCHEDULING ALGORITHM IMPLEMENTATION:" << nl << nl;
     SJF();
@@ -51,6 +50,8 @@ int main()
 
 void SJF()
 {
+    sort(process.begin() + 1, process.begin() + num + 1);
+    
     times.pb(0);
     for (int i = 1; i <= num; i++)
     {
