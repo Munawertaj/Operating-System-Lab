@@ -5,26 +5,22 @@ CSE, Rajshahi University
 */
 #include <bits/stdc++.h>
 #define pb push_back
-#define mp make_pair
-#define pii pair<int, int>
-#define pll pair<ll, ll>
 #define vii vector<int>
-#define SORT(v) sort(v.begin(), v.end())
-#define RSORT(v) sort(v.rbegin(), v.rend())
-#define ff first
-#define ss second
 #define nl "\n"
 using namespace std;
 
+struct process
+{
+    int id, burst, turn, wait;
+};
+
 int num;
-double total_time = 0, turn_around = 0, waiting = 0;
-vii bt(100), tat(100);
 vii times, process_no;
 
-void print_table();
+void FCFS(vector<process> &proc);
+void print_table(vector<process> &proc);
+void Average(vector<process> &proc);
 void gant_chart();
-void FCFS();
-void Average();
 
 int main()
 {
@@ -33,49 +29,62 @@ int main()
 
     // taking inputs
     cin >> num;
-    for (int i = 1; i <= num; i++)
-        cin >> bt[i];
+    vector<process> proc(num);
+
+    int bt;
+    for (int i = 0; i < num; i++)
+    {
+        cin >> bt;
+        proc[i].id = i;
+        proc[i].burst = bt;
+    }
 
     cout << "FIRST COME FIRST SERVE SCHEDULING ALGORITHM IMPLEMENTATION:" << nl << nl;
-    FCFS();
-    print_table();
-    Average();
+    FCFS(proc);
+    print_table(proc);
+    Average(proc);
     gant_chart();
 
     return 0;
 }
 
-void FCFS()
+void FCFS(vector<process> &proc)
 {
+    int total_time = 0;
     times.pb(0);
-    for (int i = 1; i <= num; i++)
+    for (int i = 0; i < proc.size(); i++)
     {
-        total_time += bt[i];
-        tat[i] = total_time;
+        total_time += proc[i].burst;
+        proc[i].turn = total_time;
         times.pb(total_time);
-        process_no.pb(i);
+        process_no.pb(proc[i].id);
     }
 }
 
-void print_table()
+void print_table(vector<process> &proc)
 {
     cout << "---------------Table--------------" << nl;
     cout << "Process\tBurst\tTurnAround\tWaiting" << nl;
-    for (int i = 1; i <= num; i++)
-        cout << "P" << i << "\t\t" << bt[i] << "\t\t" << tat[i] << "\t\t\t" << tat[i] - bt[i] << nl;
+
+    for (int i = 0; i < proc.size(); i++)
+        proc[i].wait = proc[i].turn - proc[i].burst;
+
+    for (auto x : proc)
+        cout << "P" << x.id << "\t\t" << x.burst << "\t\t" << x.turn << "\t\t\t" << x.wait << nl;
     cout << nl;
 }
 
-void Average()
+void Average(vector<process> &proc)
 {
     cout << "---------------Average values--------------" << nl;
-    for (int i = 1; i <= num; i++)
+    double total_turn_around = 0, total_waiting = 0;
+    for (auto x : proc)
     {
-        turn_around += tat[i];
-        waiting += (tat[i] - bt[i]);
+        total_turn_around += x.turn;
+        total_waiting += x.wait;
     }
-    cout << nl << "Average Turn around time = " << turn_around / num << nl;
-    cout << "Average Waiting time = " << waiting / num << nl;
+    cout << nl << "Average Turn around time = " << total_turn_around / num << nl;
+    cout << "Average Waiting time = " << total_waiting / num << nl;
     cout << nl;
 }
 
@@ -120,3 +129,32 @@ void gant_chart()
     }
     cout << nl;
 }
+
+/*
+Sample Input:
+5
+2 5 3 7 4
+
+Sample Output:
+FIRST COME FIRST SERVE SCHEDULING ALGORITHM IMPLEMENTATION:
+
+---------------Table--------------
+Process	Burst	TurnAround	Waiting
+P0		2		2			0
+P1		5		7			2
+P2		3		10			7
+P3		7		17			10
+P4		4		21			17
+
+---------------Average values--------------
+
+Average Turn around time = 11.4
+Average Waiting time = 7.2
+
+---------------GANT CHART--------------
+----------------------------------------------------------
+|  P0  |     P1     |   P2   |       P3       |    P4    |
+----------------------------------------------------------
+0      2            7        10               17         21
+
+*/
