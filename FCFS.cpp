@@ -131,11 +131,11 @@ FIRST COME FIRST SERVE SCHEDULING ALGORITHM IMPLEMENTATION:
 
 ---------------Table--------------
 Process	Burst	TurnAround	Waiting
-P0		2		2			0
-P1		5		7			2
-P2		3		10			7
-P3		7		17			10
-P4		4		21			17
+P1		2		2			0
+P2		5		7			2
+P3		3		10			7
+P4		7		17			10
+P5		4		21			17
 
 ---------------Average values--------------
 
@@ -144,8 +144,9 @@ Average Waiting time = 7.2
 
 ---------------GANT CHART--------------
 ----------------------------------------------------------
-|  P0  |     P1     |   P2   |       P3       |    P4    |
+|  P1  |     P2     |   P3   |       P4       |    P5    |
 ----------------------------------------------------------
 0      2            7        10               17         21
+
 
 */
