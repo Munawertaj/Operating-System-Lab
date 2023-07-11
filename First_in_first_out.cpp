@@ -38,7 +38,7 @@ int main()
         page = reference_string[i];
         cout << page << "--> ";
 
-        if (!check(page, page_frames))
+        if (!check(page, page_frames)) // FIFO will be applied
         {
             page_frames[index] = page;
             index = (index + 1) % total;
