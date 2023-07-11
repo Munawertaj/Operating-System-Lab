@@ -134,3 +134,30 @@ void gant_chart()
     }
     cout << nl;
 }
+
+/*
+Sample Input:
+3 4
+20 11 7
+
+Sample Output:
+ROUND ROBIN SCHEDULING ALGORITHM IMPLEMENTATION:
+
+---------------Table--------------
+Process	Burst	TurnAround	Waiting
+P1		20		38			18
+P2		11		30			19
+P3		7		23			16
+
+---------------Average values--------------
+
+Average Turn around time = 30.3333
+Average Waiting time = 17.6667
+
+---------------GANT CHART--------------
+--------------------------------------------------------------------------------------------------------
+|    P1    |    P2    |    P3    |    P1    |    P2    |   P3   |    P1    |   P2   |        P1        |
+--------------------------------------------------------------------------------------------------------
+0          4          8          12         16         20       23         27       30                 38
+
+*/

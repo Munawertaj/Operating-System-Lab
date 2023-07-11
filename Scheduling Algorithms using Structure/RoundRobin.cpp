@@ -13,15 +13,18 @@ CSE, Rajshahi University
 #define nl "\n"
 using namespace std;
 
-int num, quantam, total = 0;
-double turn_around = 0, waiting = 0;
-vii tat(100), bt(100);
-vii times, process_no;
-queue<pii> process;
+struct process
+{
+    int id, burst, turn, wait;
+};
 
-void RoundRobin();
-void print_table();
-void Average();
+int num, quantam;
+vii times, process_no;
+queue<pii> processes;
+
+void RoundRobin(vector<process> &proc);
+void print_table(vector<process> &proc);
+void Average(vector<process> &proc);
 void gant_chart();
 
 int main()
@@ -30,66 +33,75 @@ int main()
     freopen("output.txt", "w", stdout);
 
     cin >> num >> quantam;
-    int b;
-    for (int i = 1; i <= num; i++)
+    vector<process> proc(num);
+    int bt;
+    for (int i = 0; i < num; i++)
     {
-        cin >> b;
-        process.push({i, b});
-        bt[i] = b;
+        cin >> bt;
+        proc[i].id = i;
+        proc[i].burst = bt;
+        processes.push({i, bt});
     }
 
     cout << "ROUND ROBIN SCHEDULING ALGORITHM IMPLEMENTATION:" << nl << nl;
-    RoundRobin();
-    print_table();
-    Average();
+    RoundRobin(proc);
+    print_table(proc);
+    Average(proc);
     gant_chart();
 }
 
-void RoundRobin()
+void RoundRobin(vector<process> &proc)
 {
-    pii temp;
-    int p_num, b_time;
-    times.pb(0);
-    while (!process.empty())
-    {
-        temp = process.front();
-        process.pop();
-        p_num = temp.ff;
-        b_time = temp.ss;
+    int total_time = 0;
+    times.push_back(0);
+    pair<int, int> temp;
+    int p_id, b_time;
 
-        if (b_time <= quantam || process.empty())
-            total += b_time;
+    while (processes.size())
+    {
+        temp = processes.front();
+        processes.pop();
+        p_id = temp.first;
+        b_time = temp.second;
+
+        if (b_time <= quantam || processes.empty())
+            total_time += b_time;
         else
         {
-            total += quantam;
+            total_time += quantam;
             b_time -= quantam;
-            process.push({p_num, b_time});
+            processes.push({p_id, b_time});
         }
-        tat[p_num] = total;
-        times.pb(total);
-        process_no.pb(p_num);
+        proc[p_id].turn = total_time;
+        times.push_back(total_time);
+        process_no.push_back(p_id);
     }
 }
 
-void print_table()
+void print_table(vector<process> &proc)
 {
     cout << "---------------Table--------------" << nl;
     cout << "Process\tBurst\tTurnAround\tWaiting" << nl;
-    for (int i = 1; i <= num; i++)
-        cout << "P" << i << "\t\t" << bt[i] << "\t\t" << tat[i] << "\t\t\t" << tat[i] - bt[i] << nl;
+
+    for (int i = 0; i < proc.size(); i++)
+        proc[i].wait = proc[i].turn - proc[i].burst;
+
+    for (auto x : proc)
+        cout << "P" << x.id << "\t\t" << x.burst << "\t\t" << x.turn << "\t\t\t" << x.wait << nl;
     cout << nl;
 }
 
-void Average()
+void Average(vector<process> &proc)
 {
     cout << "---------------Average values--------------" << nl;
-    for (int i = 1; i <= num; i++)
+    double total_turn_around = 0, total_waiting = 0;
+    for (auto x : proc)
     {
-        turn_around += tat[i];
-        waiting += (tat[i] - bt[i]);
+        total_turn_around += x.turn;
+        total_waiting += x.wait;
     }
-    cout << nl << "Average Turn around time = " << turn_around / num << nl;
-    cout << "Average Waiting time = " << waiting / num << nl;
+    cout << nl << "Average Turn around time = " << total_turn_around / num << nl;
+    cout << "Average Waiting time = " << total_waiting / num << nl;
     cout << nl;
 }
 
@@ -134,3 +146,31 @@ void gant_chart()
     }
     cout << nl;
 }
+
+/*
+Sample Input:
+3 4
+20 11 7
+
+Sample Output:
+ROUND ROBIN SCHEDULING ALGORITHM IMPLEMENTATION:
+
+---------------Table--------------
+Process	Burst	TurnAround	Waiting
+P0		20		38			18
+P1		11		30			19
+P2		7		23			16
+
+---------------Average values--------------
+
+Average Turn around time = 30.3333
+Average Waiting time = 17.6667
+
+---------------GANT CHART--------------
+--------------------------------------------------------------------------------------------------------
+|    P0    |    P1    |    P2    |    P0    |    P1    |   P2   |    P0    |   P1   |        P0        |
+--------------------------------------------------------------------------------------------------------
+0          4          8          12         16         20       23         27       30                 38
+
+
+*/
