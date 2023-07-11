@@ -1,28 +1,31 @@
 /*
-Problem : SHORTEST JOB FIRST
+Problem : FIRST COME FIRST SERVE
 Author: Tareq Munawer Taj
 CSE, Rajshahi University
 */
 #include <bits/stdc++.h>
 #define pb push_back
-#define mp make_pair
-#define pii pair<int, int>
 #define vii vector<int>
-#define ff first
-#define ss second
 #define nl "\n"
 using namespace std;
 
-int num;
-double total_time = 0, turn_around = 0, waiting = 0;
-vii tat(100, 0), bt(100);
-vii times, process_no;
-vector<pii> process(100);
+struct process
+{
+    int id, burst, turn, wait;
+};
 
-void print_table();
+bool compare_by_burst(process x, process y)
+{
+    return x.burst < y.burst;
+}
+
+int num;
+vii times, process_no;
+
+void SJF(vector<process> &proc);
+void print_table(vector<process> &proc);
+void Average(vector<process> &proc);
 void gant_chart();
-void SJF();
-void Average();
 
 int main()
 {
@@ -31,56 +34,63 @@ int main()
 
     // taking inputs
     cin >> num;
-    int brst;
-    for (int i = 1; i <= num; i++)
+    vector<process> proc(num);
+
+    int bt;
+    for (int i = 0; i < num; i++)
     {
-        cin >> brst;
-        process[i] = {brst, i};
-        bt[i] = brst;
+        cin >> bt;
+        proc[i].id = i;
+        proc[i].burst = bt;
     }
 
     cout << "SHORTEST JOB FIRST SCHEDULING ALGORITHM IMPLEMENTATION:" << nl << nl;
-    SJF();
-    print_table();
-    Average();
+    SJF(proc);
+    print_table(proc);
+    Average(proc);
     gant_chart();
 
     return 0;
 }
 
-void SJF()
+void SJF(vector<process> &proc)
 {
-    sort(process.begin() + 1, process.begin() + num + 1);
-    
+    sort(proc.begin(), proc.end(), compare_by_burst);
+    int total_time = 0;
     times.pb(0);
-    for (int i = 1; i <= num; i++)
+    for (int i = 0; i < proc.size(); i++)
     {
-        total_time += process[i].ff;
-        tat[process[i].ss] = total_time;
+        total_time += proc[i].burst;
+        proc[i].turn = total_time;
         times.pb(total_time);
-        process_no.pb(process[i].ss);
+        process_no.pb(proc[i].id);
     }
 }
 
-void print_table()
+void print_table(vector<process> &proc)
 {
     cout << "---------------Table--------------" << nl;
     cout << "Process\tBurst\tTurnAround\tWaiting" << nl;
-    for (int i = 1; i <= num; i++)
-        cout << "P" << i << "\t\t" << bt[i] << "\t\t" << tat[i] << "\t\t\t" << tat[i] - bt[i] << nl;
+
+    for (int i = 0; i < proc.size(); i++)
+        proc[i].wait = proc[i].turn - proc[i].burst;
+
+    for (auto x : proc)
+        cout << "P" << x.id << "\t\t" << x.burst << "\t\t" << x.turn << "\t\t\t" << x.wait << nl;
     cout << nl;
 }
 
-void Average()
+void Average(vector<process> &proc)
 {
     cout << "---------------Average values--------------" << nl;
-    for (int i = 1; i <= num; i++)
+    double total_turn_around = 0, total_waiting = 0;
+    for (auto x : proc)
     {
-        turn_around += tat[i];
-        waiting += (tat[i] - bt[i]);
+        total_turn_around += x.turn;
+        total_waiting += x.wait;
     }
-    cout << nl << "Average Turn around time = " << turn_around / num << nl;
-    cout << "Average Waiting time = " << waiting / num << nl;
+    cout << nl << "Average Turn around time = " << total_turn_around / num << nl;
+    cout << "Average Waiting time = " << total_waiting / num << nl;
     cout << nl;
 }
 
@@ -125,3 +135,32 @@ void gant_chart()
     }
     cout << nl;
 }
+
+/*
+Sample Input:
+5
+2 5 3 7 4
+
+Sample Output:
+SHORTEST JOB FIRST SCHEDULING ALGORITHM IMPLEMENTATION:
+
+---------------Table--------------
+Process	Burst	TurnAround	Waiting
+P0		2		2			0
+P2		3		5			2
+P4		4		9			5
+P1		5		14			9
+P3		7		21			14
+
+---------------Average values--------------
+
+Average Turn around time = 10.2
+Average Waiting time = 6
+
+---------------GANT CHART--------------
+----------------------------------------------------------
+|  P0  |   P2   |    P4    |     P1     |       P3       |
+----------------------------------------------------------
+0      2        5          9            14               21
+
+*/

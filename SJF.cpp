@@ -125,3 +125,32 @@ void gant_chart()
     }
     cout << nl;
 }
+
+/*
+Sample Input:
+5
+2 5 3 7 4
+
+Sample Output:
+SHORTEST JOB FIRST SCHEDULING ALGORITHM IMPLEMENTATION:
+
+---------------Table--------------
+Process	Burst	TurnAround	Waiting
+P1		2		2			0
+P2		5		14			9
+P3		3		5			2
+P4		7		21			14
+P5		4		9			5
+
+---------------Average values--------------
+
+Average Turn around time = 10.2
+Average Waiting time = 6
+
+---------------GANT CHART--------------
+----------------------------------------------------------
+|  P1  |   P3   |    P5    |     P2     |       P4       |
+----------------------------------------------------------
+0      2        5          9            14               21
+
+*/
